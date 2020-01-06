@@ -1,5 +1,6 @@
 #include <stdio.h>
-W
+#include <stdlib.h>
+
 #define RED  0
 #define BLACK 1
 
@@ -39,7 +40,7 @@ void right_rotate(RedBlackTree *tree, Node *y){
     if (x->right != NULL)
         x->right->parent = y;
     x->parent = y->parent;
-    if (y->parent == NULL) 
+    if (y->parent == NULL)
         tree->root = x;
     else{
         if (y == y->parent->right)
@@ -109,7 +110,7 @@ void insert(RedBlackTree *tree, Node *node){
         if (node->data < x->data)
             x = x->left;
         else
-            x = x->right;        
+            x = x->right;
     }
     node->parent=y;
     if (y != NULL){
@@ -131,7 +132,7 @@ void delete_fixup(RedBlackTree *tree, Node *node, Node *parent){
     while ((!node || node->color==BLACK) && node != tree->root){
         if (parent->left == node){
             other = parent->right;
-            if (other->color==RED){ 
+            if (other->color==RED){
                 other->color=BLACK;
                 parent->color=RED;
                 left_rotate(tree, parent);
@@ -143,7 +144,7 @@ void delete_fixup(RedBlackTree *tree, Node *node, Node *parent){
                 node = parent;
                 parent = node->parent;
             } else{
-                if (!other->right || other->right->color==BLACK){ 
+                if (!other->right || other->right->color==BLACK){
                     other->left->color=BLACK;
                     other->color=RED;
                     right_rotate(tree, other);
@@ -188,7 +189,7 @@ void delete_fixup(RedBlackTree *tree, Node *node, Node *parent){
     if (node)
         node->color=BLACK;
 }
-void delete(RedBlackTree *tree, Node *node){
+void Delete(RedBlackTree *tree, Node *node){
     Node *child, *parent;
     int color;
 
@@ -202,8 +203,8 @@ void delete(RedBlackTree *tree, Node *node){
                 node->parent->left = replace;
             else
                 node->parent->right = replace;
-        } 
-        else 
+        }
+        else
             tree->root = replace;
         child = replace->right;
         parent = replace->parent;
@@ -223,12 +224,12 @@ void delete(RedBlackTree *tree, Node *node){
         node->left->parent = replace;
         if (color == BLACK)
             delete_fixup(tree, child, parent);
-        free(node);
+
         return ;
     }
     if (node->left !=NULL)
         child = node->left;
-    else 
+    else
         child = node->right;
     parent = node->parent;
     color = node->color;
@@ -244,7 +245,7 @@ void delete(RedBlackTree *tree, Node *node){
         tree->root = child;
     if (color == BLACK)
         delete_fixup(tree, child, parent);
-    free(node);
+
 }
 Node* search(RedBlackTree *tree, int k){
     Node *x;
@@ -253,7 +254,7 @@ Node* search(RedBlackTree *tree, int k){
         if (k < x->data)
             x = x->left;
         else if(k> x->data)
-            x = x->right;        
+            x = x->right;
         else {
             return x;
         }
@@ -264,9 +265,9 @@ void inorder_traversal(Node *node,FILE *fout){
     if(node->left!=NULL)
         inorder_traversal(node->left,fout);
     if(node->parent!=NULL)
-        fprintf(fout,"key: %d parent: %d color: %s\n",node->data,node->parent->data,node->color==RED?"red":"black");
+        printf("key: %d parent: %d color: %s\n",node->data,node->parent->data,node->color==RED?"red":"black");
     else
-        fprintf(fout,"key: %d parent:   color: %s\n",node->data,node->color==RED?"red":"black");
+        printf("key: %d parent:   color: %s\n",node->data,node->color==RED?"red":"black");
     if(node->right!=NULL)
         inorder_traversal(node->right,fout);
 }
@@ -281,44 +282,43 @@ int main(int argc,char *argv[]){
     RedBlackTree tree;
 
     fin=fopen("input.txt","r");
-    fout=fopen("output.txt","w");
-    
+
+
     tree.root=NULL;
     fscanf(fin,"%d",&num);
     while(num>0){
         fscanf(fin,"%d",&op);
         start=0;
         do{
-            fscanf(fin,"%d",&data); 
+            fscanf(fin,"%d",&data);
             if(op==1){
                 if(start==0){
-                    fprintf(fout,"Insert: %d",data);
+                    printf("Insert: %d",data);
                     start=1;
                 }else
-                    fprintf(fout,", %d",data);     
+                    printf(", %d",data);
                 Node* node=(Node*)malloc(sizeof(Node));
-                memset(node,0,sizeof(Node));
-                node->data=data;     
-                insert(&tree,node);       
-                
+                //memset(node,0,sizeof(Node));
+                node->data=data;
+                insert(&tree,node);
+
             }else{
                 if(start==0){
-                    fprintf(fout,"Delete: %d",data);
+                    printf("Delete: %d",data);
                     start=1;
                 }else
-                    fprintf(fout,", %d",data);    
+                    printf(", %d",data);
                 Node* node=search(&tree, data);
                 if(node!=NULL){
-                    delete(&tree,node);
-                }  
+                    Delete(&tree,node);
+                }
             }
         }while((c=getc(fin)) != EOF && c != '\n');
-        fprintf(fout,"\n");
+        printf("\n");
         inorder_traversal(tree.root,fout);
         num--;
     }
 
     fclose(fin);
-    fclose(fout);
     return 0;
 }
